@@ -73,6 +73,10 @@ function createPreprocessor(config, basePath, logger) {
     function replaceModuleName(match, moduleName) {
       var modulePath;
       try {
+        var cap = moduleName.match(/^\w+!(.+)$/)
+        if(cap)
+          moduleName = cap[1];
+
         if (moduleName.charAt(0) === '.') {
           modulePath = require.resolve(path.resolve(filePath, moduleName));
         } else {
