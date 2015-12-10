@@ -56,7 +56,7 @@ function createPreprocessor(config, basePath, logger) {
     // to add .js to make Karma serve it as a js file.
     // This is for things like transforming an .html file
     // to a CommonJS module.
-    if (file.path.indexOf('.js') !== file.path.length - 3) {
+    if (!/\.js$/.test(file.path)) {
       file.path = file.path + '.js';
     }
 
@@ -78,7 +78,10 @@ function createPreprocessor(config, basePath, logger) {
           moduleName = cap[1];
 
         if (moduleName.charAt(0) === '.') {
-          modulePath = require.resolve(path.resolve(filePath, moduleName));
+          modulePath = path.resolve(filePath, moduleName);
+          if (!/\.\w+$/.test(modulePath)) {
+            modulePath = modulePath + '.js';
+          }
         } else {
           if (moduleName in browserBuiltins) {
             modulePath = browserBuiltins[moduleName];
@@ -114,6 +117,8 @@ function createPreprocessor(config, basePath, logger) {
               'window.__cjsModuleAliases["' + moduleName + '"] = "' + modulePath + '";';
           }
         }
+        // For windows
+        modulePath = modulePath.replace(/\\/g, '/');
         log.debug('Replacing require "%s" with "%s"', moduleName, modulePath);
       } catch (e) {
         modulePath = moduleName;
